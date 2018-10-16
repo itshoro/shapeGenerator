@@ -92,7 +92,8 @@ const colors = [
     "#fde74c"
 ];
 
-const AMOUNT = 30; // (AMOUNT / 2 filled shapes, AMOUNT / 2 stroked )
+const FILLED_AMOUNT = 30;
+const STROKED_AMOUNT = 30;
 
 function random(max, min = 0) {
     return (Math.random() * (max - min + 1) + min);
@@ -114,7 +115,7 @@ window.onload = function() {
     /**
      * Right now we're focusing on the mid point of the canvas to calculate everything.
      * This is due to the fact of the randomness being pseudo random leaving us with a
-     * result where the calculated x and y values are somewhere between width / 2 and -width / 2 or height / 2 and -height / 2.
+     * result where the calculated x and y values are mostly somewhere between width / 2 and -width / 2 or height / 2 and -height / 2.
      * 
      * If we would use the standard translation point we would have a distribution that favors the left side.
      * 
@@ -126,72 +127,49 @@ window.onload = function() {
     context.fillStyle = backgroundColor;
     context.fillRect (-width / 2, -height / 2, width, height);
 
-    for(let i = 0; i < AMOUNT / 2; i++) {
-        let size = Math.floor(random(75, 15));
-        let x = random(width / 2, -width / 2) - size / 2;
-        let y = random(height / 2, -height / 2) - size / 2;
+    strokeDrawables = generateDrawables(STROKED_AMOUNT);
+    fillDrawables = generateDrawables(FILLED_AMOUNT);
 
-        /**
-         * We calculate x and y this way so that if we have say
-         * size = 30
-         * that the middle point of the shape is at the origin if the result of the random is 0.
-         * 
-         * This is because in Drawable.draw(); we set the center of the canvas to the object so we can
-         * rotate it. This is just a simple way of doing it. We could ignore the -size / 2 however this
-         * could also create objects that are fully off the screen.
-         * 
-         * With this "half approach" we can gurantee that atleast parts of the object are seen on screen under
-         * most circumstances. (Edge Cases Triangles at x Degree, when they become Parallel to the side).
-         */
-
-        let rotation = random(360);
-
-        let color = randomColor();
-        let type = random(shapes.length - 1);
-        strokeDrawables.push(new Drawable(
-            Math.floor(x),
-            Math.floor(y),
-            Math.floor(rotation) * Math.PI / 180, // Degree to Radians, the context.rotate function takes radians
-            randomColor(),
-            size,
-            Math.floor(type)
-        ));
-    }
-    for(let i = 0; i < AMOUNT / 2; i++) {
-        let size = Math.floor(random(75, 15));
-        let x = random(width / 2, -width / 2) - size / 2;
-        let y = random(height / 2, -height / 2) - size / 2;
-
-        /**
-         * We calculate x and y this way so that if we have say
-         * size = 30
-         * that the middle point of the shape is at the origin if the result of the random is 0.
-         * 
-         * This is because in Drawable.draw(); we set the center of the canvas to the object so we can
-         * rotate it. This is just a simple way of doing it. We could ignore the -size / 2 however this
-         * could also create objects that are fully off the screen.
-         * 
-         * With this "half approach" we can gurantee that atleast parts of the object are seen on screen under
-         * most circumstances. (Edge Cases Triangles at x Degree, when they become Parallel to the side).
-         */
-
-        let rotation = random(360);
-
-        let color = randomColor();
-        let type = random(shapes.length - 1);
-        fillDrawables.push(new Drawable(
-            Math.floor(x),
-            Math.floor(y),
-            Math.floor(rotation) * Math.PI / 180, // Degree to Radians, the context.rotate function takes radians
-            randomColor(),
-            size,
-            Math.floor(type)
-        ));
-    }
     draw();
     document.body.appendChild(canvas);
-    
 }; 
+
+
+function generateDrawables(amount) {
+    let collection = [];
+    for(let i = 0; i < amount; i++) {
+        let size = Math.floor(random(75, 15));
+        let x = random(width / 2, -width / 2) - size / 2;
+        let y = random(height / 2, -height / 2) - size / 2;
+
+        /**
+         * We calculate x and y this way so that if we have say
+         * size = 30
+         * that the middle point of the shape is at the origin if the result of the random is 0.
+         * 
+         * This is because in Drawable.draw(); we set the center of the canvas to the object so we can
+         * rotate it. This is just a simple way of doing it. We could ignore the -size / 2 however this
+         * could also create objects that are fully off the screen.
+         * 
+         * With this "half approach" we can gurantee that atleast parts of the object are seen on screen under
+         * most circumstances. (Edge Cases Triangles at x Degree, when they become Parallel to the side).
+         */
+
+        let rotation = random(360);
+
+        let color = randomColor();
+        let type = random(shapes.length - 1);
+        collection.push(new Drawable(
+            Math.floor(x),
+            Math.floor(y),
+            Math.floor(rotation) * Math.PI / 180, // Degree to Radians, the context.rotate function takes radians
+            randomColor(),
+            size,
+            Math.floor(type)
+        ));
+    }
+    return collection;
+}
 
 window.addEventListener("resize", resizeCanvas, false);
 resizeCanvas();
