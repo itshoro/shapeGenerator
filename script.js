@@ -3,14 +3,15 @@
  */
 
 const strokeWidth = 3;
-const backgroundColor = "white";
+const backgroundColor = "transparent";
 const colors = [
     // Set up colors that are randomly chosen instead of purely random colors
-    "da2c38",
-    "4392f1",
-    "226f54",
-    "fde74c"
+    "000000"
 ];
+
+const resizeToBrowserWidth = false;
+let width = 1920;
+let height = 1080;
 
 const FILLED_AMOUNT = 30;
 const STROKED_AMOUNT = 30;
@@ -18,7 +19,7 @@ const STROKED_AMOUNT = 30;
 const canCreateFilledCircles = true;
 const canCreateStrokedCircles = false;
 
-const canColorsHaveAlpha = false; // Probably should change this name, it sucks
+const canColorsHaveAlpha = true; // Probably should change this name, it sucks
 
 const minAlpha = 0;
 const maxAlpha = 255; // 1% ~~ 2.56;
@@ -107,8 +108,6 @@ class Drawable {
     }
 }
 
-let width = 0;
-let height = 0;
 
 const shapes = [
     [0,0,1,0,1,1,0,1],
@@ -209,10 +208,15 @@ window.addEventListener("resize", resizeCanvas, false);
 resizeCanvas();
 
 function resizeCanvas(){
-    canvas.width = width = window.innerWidth;
-    canvas.height = height = window.innerHeight;
+    if (resizeToBrowserWidth) {
+        canvas.width = width = window.innerWidth;
+        canvas.height = height = window.innerHeight;
+    }
+    else {
+        canvas.width = width;
+        canvas.height = height;
+    }
     context = canvas.getContext("2d");
-
     draw();
 };
 
