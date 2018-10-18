@@ -15,7 +15,10 @@ const colors = [
 const FILLED_AMOUNT = 30;
 const STROKED_AMOUNT = 30;
 
-const canColorsHaveAlpha = true; // Probably should change this name, it sucks
+const canCreateFilledCircles = true;
+const canCreateStrokedCircles = false;
+
+const canColorsHaveAlpha = false; // Probably should change this name, it sucks
 
 const minAlpha = 0;
 const maxAlpha = 255; // 1% ~~ 2.56;
@@ -35,60 +38,70 @@ class Drawable {
     }
     
     stroke() {
-        const base = shapes[this.type];
         context.moveTo(this.x, this.y);
         context.strokeStyle = this.color;
         context.lineWidth = strokeWidth;
         
-        context.save();
-        context.translate(this.x + this.size / 2, this.y + this.size / 2);
-        context.rotate(this.rotation);
-
-        context.beginPath();
-        for (let i = 0; i < base.length; i += 2) {
-            
-            /**
-             * Since we translate the canvas towards the center anchor of our shape ((x + size / 2, y + size / 2) == origin)
-             * we have to favor in the size, as if we wouldn't subtract half of it then the shape would be drawn with
-             * an anchor to the lower left.
-             * 
-             * The rotation however only works properly if we anchor the shape to the center
-             */
-            let px = base[i] * this.size - (this.size / 2);
-            let py = base[i + 1] * this.size - (this.size / 2);
-            
-            context.lineTo(px, py);
+        if(this.type === shapes.length) { // type == circle, which can't be defined properly in the shape array
+        context.ellipse(this.x, this.y, this.size, this.size, this.rotation, 0, 2 * Math.PI); // We leave in rotation so we can leave it open to have different x and y sizes.
         }
-        context.closePath();
-        context.stroke();
+        else {
+            context.save();
+            const base = shapes[this.type];
+            context.translate(this.x + this.size / 2, this.y + this.size / 2);
+            context.rotate(this.rotation);
+    
+            context.beginPath();
+            for (let i = 0; i < base.length; i += 2) {
+                
+                /**
+                 * Since we translate the canvas towards the center anchor of our shape ((x + size / 2, y + size / 2) == origin)
+                 * we have to favor in the size, as if we wouldn't subtract half of it then the shape would be drawn with
+                 * an anchor to the lower left.
+                 * 
+                 * The rotation however only works properly if we anchor the shape to the center
+                 */
+                let px = base[i] * this.size - (this.size / 2);
+                let py = base[i + 1] * this.size - (this.size / 2);
+                
+                context.lineTo(px, py);
+            }
+            context.closePath();
+        }
         context.restore();
+        context.stroke();
     }
 
     fill() {
-        const base = shapes[this.type];
         context.moveTo(this.x, this.y);
         context.fillStyle = this.color;
-        
-        context.save();
-        context.translate(this.x + this.size / 2, this.y + this.size / 2);
-        context.rotate(this.rotation);
 
-        context.beginPath();
-        for (let i = 0; i < base.length; i += 2) {
-            
-            /**
-             * Since we translate the canvas towards the center anchor of our shape ((x + size / 2, y + size / 2) == origin)
-             * we have to favor in the size, as if we wouldn't subtract half of it then the shape would be drawn with
-             * an anchor to the lower left.
-             * 
-             * The rotation however only works properly if we anchor the shape to the center
-             */
-            let px = base[i] * this.size - (this.size / 2);
-            let py = base[i + 1] * this.size - (this.size / 2);
-            
-            context.lineTo(px, py);
+        if(this.type === shapes.length) { // type == circle, which can't be defined properly in the shape array
+            context.ellipse(this.x, this.y, this.size, this.size, this.rotation, 0, 2 * Math.PI); // We leave in rotation so we can leave it open to have different x and y sizes.
         }
-        context.closePath();
+        else {
+            context.save();
+            const base = shapes[this.type];
+            context.translate(this.x + this.size / 2, this.y + this.size / 2);
+            context.rotate(this.rotation);
+    
+            context.beginPath();
+            for (let i = 0; i < base.length; i += 2) {
+                
+                /**
+                 * Since we translate the canvas towards the center anchor of our shape ((x + size / 2, y + size / 2) == origin)
+                 * we have to favor in the size, as if we wouldn't subtract half of it then the shape would be drawn with
+                 * an anchor to the lower left.
+                 * 
+                 * The rotation however only works properly if we anchor the shape to the center
+                 */
+                let px = base[i] * this.size - (this.size / 2);
+                let py = base[i + 1] * this.size - (this.size / 2);
+                
+                context.lineTo(px, py);
+            }
+            context.closePath();
+        }
         context.fill();
         context.restore();
     }
@@ -145,16 +158,20 @@ window.onload = function() {
     context.fillStyle = backgroundColor;
     context.fillRect (-width / 2, -height / 2, width, height);
 
-    strokeDrawables = generateDrawables(STROKED_AMOUNT);
-    fillDrawables = generateDrawables(FILLED_AMOUNT);
+    strokeDrawables = generateDrawables(STROKED_AMOUNT, canCreateStrokedCircles);
+    fillDrawables = generateDrawables(FILLED_AMOUNT, canCreateFilledCircles);
 
     draw();
     document.body.appendChild(canvas);
 }; 
 
-
-function generateDrawables(amount) {
+function generateDrawables(amount, canCreateCircles) {
     let collection = [];
+
+    let shapeTypeAmount = shapes.length - 1;
+    if (canCreateCircles)
+        shapeTypeAmount++;
+
     for(let i = 0; i < amount; i++) {
         let size = Math.floor(random(75, 15));
         let x = random(width / 2, -width / 2) - size / 2;
@@ -175,8 +192,7 @@ function generateDrawables(amount) {
 
         let rotation = random(360);
 
-        let color = randomColor();
-        let type = random(shapes.length - 1);
+        let type = random(shapeTypeAmount);
         collection.push(new Drawable(
             Math.floor(x),
             Math.floor(y),
