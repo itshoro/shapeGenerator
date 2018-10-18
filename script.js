@@ -1,3 +1,29 @@
+/**
+ * User Settings
+ */
+
+const strokeWidth = 3;
+const backgroundColor = "white";
+const colors = [
+    // Set up colors that are randomly chosen instead of purely random colors
+    "da2c38",
+    "4392f1",
+    "226f54",
+    "fde74c"
+];
+
+const FILLED_AMOUNT = 30;
+const STROKED_AMOUNT = 30;
+
+const canColorsHaveAlpha = true; // Probably should change this name, it sucks
+
+const minAlpha = 0;
+const maxAlpha = 255; // 1% ~~ 2.56;
+
+/**
+ * Don't edit the file past this point as it could make the script stop from working
+ */
+
 class Drawable {
     constructor(x, y, rotation, color, size, type) {
         this.x = x;
@@ -82,32 +108,24 @@ let context = canvas.getContext("2d");
 let fillDrawables = [];
 let strokeDrawables = [];
 
-const strokeWidth = 3;
-const backgroundColor = "white";
-const colors = [
-    // Set up colors that are randomly chosen instead of purely random colors
-    "#da2c38",
-    "#4392f1",
-    "#226f54",
-    "#fde74c"
-];
-
-const FILLED_AMOUNT = 30;
-const STROKED_AMOUNT = 30;
-
 function random(max, min = 0) {
     return (Math.random() * (max - min + 1) + min);
 }
 
 function randomColor() {
-    if (colors.length > 0)
-        return colors[Math.floor(random(colors.length - 1))];
-
-    let color = Math.floor(random(255)).toString(16);
-    color += Math.floor(random(255)).toString(16);
-    color += Math.floor(random(255)).toString(16);
-
-    return "#" + color;
+    let color = "#";
+    if (colors.length > 0) {
+        color += colors[Math.floor(random(colors.length - 1))];
+    }
+    else {
+        color += Math.floor(random(255)).toString(16);
+        color += Math.floor(random(255)).toString(16);
+        color += Math.floor(random(255)).toString(16);
+    }
+    if(canColorsHaveAlpha) {
+        color += Math.floor(random(maxAlpha, minAlpha)).toString(16);
+    }
+    return color;
 }
 
 window.onload = function() {
